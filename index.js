@@ -19,9 +19,9 @@ db.connect(function (err) {
     prompt();
 });
 
-// const query = util.promisify(db.query).bind(db);
+const query = util.promisify(db.query).bind(db);
 
-function prompt() {
+const prompt = async function() {
     inquirer
     .prompt({
         type: "list",
@@ -37,7 +37,7 @@ function prompt() {
             "Update an employee's role",
             "Nevermind"]
     })
-    .then(function ({ task }) {
+    .then(async function ({ task }) {
         switch (task) {
             case "View all departments":
             viewDepartments();
@@ -52,25 +52,26 @@ function prompt() {
             break;
 
             case "Add a department":
-            addDepartment();
+            await addDepartment();
             break;
 
             case "Add a role":
-            addRole();
+            await addRole();
             break;
 
             case "Add an employee":
-            addEmployee();
+            await addEmployee();
             break;
 
             case "Update an employee's role":
-            updateRole();
+            await updateRole();
             break; 
 
             case "Nevermind":
             db.end();
             break;
         }
+        prompt();
     })
 }
 
@@ -79,6 +80,7 @@ const viewDepartments = async function() {
     
     try {
         data = await query(`SELECT id, name FROM department`);
+        console.table(data);
     } catch (e) {
         console.log(e);
     }
@@ -89,6 +91,7 @@ const viewRoles = async function() {
     let data;
     try {
         data = await query (`SELECT r.id, r.title, r.salary, d.name department FROM role r INNER JOIN department d ON d.id = r.department_id`); 
+        console.table(data);
     } catch (e) {
         console.log(e);
     }
@@ -98,7 +101,8 @@ const viewRoles = async function() {
 const viewEmployees = async function() {
     let data;
     try {
-        data = await query(`SELECT e.id, e.first_name FirstName, e.last_name LastName, r.title Title, m.first_name ManagerFirst, m.last_name ManagerLast FROM employee e INNER JOIN role r ON r.id = e.role_id LEFT JOIN employee m ON m.id = e.manager_id`);
+        data = await query(`SELECT e.id, e.first_name FirstName, e.last_name LastName, r.title Title, m.first_name ManagerFirst, m.last_name ManagerLast FROM employee e LEFT JOIN role r ON r.id = e.role_id LEFT JOIN employee m ON m.id = e.manager_id`);
+        console.table(data);
     } catch (e) {
         console.log(e);
     }
@@ -113,9 +117,12 @@ const addDepartment = async function() {
     })
     .then(async answers => {
         await query(`INSERT INTO department SET ?`, {
-            id: uuid.v4(),
+            // id: uuid.v4(),
             name: answers.deptName
         });
+    })
+    .catch(err => {
+        console.log(err);
     });
     return "Created!"
 }
@@ -145,7 +152,7 @@ const addRole = async function() {
     }])
     .then(async answers => {
         await query(`INSERT INTO role SET ?`,{
-            id: uuid.v4(),
+            // id: uuid.v4(),
             title: answers.roleName,
             salary: answers.salary,
             department_id : answers.deptID
@@ -193,7 +200,7 @@ const addEmployee = async function() {
     }])
     .then(async answers => {
         await query(`INSERT INTO employee SET ?`, {
-            id: uuid.v4(),
+            // id: uuid.v4(),
             first_name: answers.firstName,
             last_name: answers.lastName,
             role_id: answers.roleID,
@@ -213,7 +220,7 @@ const updateRole = async function() {
         choiceEmployees.push({name : `${employee.FirstName} ${employee.LastName} (${employee.Title})`, value: employee.id});
     }
     for (var role of roles) {
-        choiceRoles.push({name : `${role.title} (${role.department})`, value: employee.id});
+        choiceRoles.push({name : `${role.title} (${role.department})`, value: role.id});
     }
 
     await inquirer.prompt([{
@@ -229,9 +236,10 @@ const updateRole = async function() {
         choices: choiceRoles
     }])
     .then(async answers => {
+        console.log(answers);
         await query(
             `
-            UPDATE employee SET role_id = "${answers.roleID} WHERE id = "${answers.employeeID}";`
+            UPDATE employee SET role_id = "${answers.roleID}" WHERE id = "${answers.employeeID}";`
         );
     });
     return "Done!";
