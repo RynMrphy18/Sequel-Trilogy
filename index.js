@@ -1,12 +1,14 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 require("console.table");
+const uuid = require("uuid");
+const util = require("util");
 
 const db = mysql.createConnection({
     host: "localhost",
     port: 3306,
     user: "root",
-    password: "Dundermifflin1",
+    password: "Dundermifflin1!",
     database: "employeesDB"
 });
 
@@ -16,6 +18,8 @@ db.connect(function (err) {
 
     prompt();
 });
+
+// const query = util.promisify(db.query).bind(db);
 
 function prompt() {
     inquirer
@@ -72,6 +76,7 @@ function prompt() {
 
 const viewDepartments = async function() {
     let data;
+    
     try {
         data = await query(`SELECT id, name FROM department`);
     } catch (e) {
