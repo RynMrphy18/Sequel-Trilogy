@@ -1,5 +1,5 @@
 // declare values
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const inquirer = require("inquirer");
 const util = require("util");
 require("console.table");
