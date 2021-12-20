@@ -1,9 +1,10 @@
+// declare values
 const mysql = require("mysql");
 const inquirer = require("inquirer");
-require("console.table");
-const uuid = require("uuid");
 const util = require("util");
+require("console.table");
 
+// establish connection to db/password
 const db = mysql.createConnection({
     host: "localhost",
     port: 3306,
@@ -20,6 +21,8 @@ db.connect(function (err) {
 });
 
 const query = util.promisify(db.query).bind(db);
+
+// inquirer prompt to ask questions and call itself at end of switch statement and recall itself if needed
 
 const prompt = async function() {
     inquirer
@@ -75,6 +78,8 @@ const prompt = async function() {
     })
 }
 
+// 3 view and no change functions used by displaying db data as a table
+
 const viewDepartments = async function() {
     let data;
     
@@ -117,7 +122,6 @@ const addDepartment = async function() {
     })
     .then(async answers => {
         await query(`INSERT INTO department SET ?`, {
-            // id: uuid.v4(),
             name: answers.deptName
         });
     })
@@ -126,6 +130,8 @@ const addDepartment = async function() {
     });
     return "Created!"
 }
+
+// using for of loops to create new parameters to be added to db
 
 const addRole = async function() {
     var departments = await viewDepartments();
@@ -152,7 +158,6 @@ const addRole = async function() {
     }])
     .then(async answers => {
         await query(`INSERT INTO role SET ?`,{
-            // id: uuid.v4(),
             title: answers.roleName,
             salary: answers.salary,
             department_id : answers.deptID
@@ -200,7 +205,6 @@ const addEmployee = async function() {
     }])
     .then(async answers => {
         await query(`INSERT INTO employee SET ?`, {
-            // id: uuid.v4(),
             first_name: answers.firstName,
             last_name: answers.lastName,
             role_id: answers.roleID,
@@ -209,6 +213,8 @@ const addEmployee = async function() {
     });
     return "Created!";
 }
+
+// using for of loop to pull up role data and add a new one into it
 
 const updateRole = async function() {
     const employees = await viewEmployees();

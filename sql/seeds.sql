@@ -1,5 +1,7 @@
 USE employeesDB;
 
+-- beginning data for departments, roles, and employees that can be seen at the beginning using the view___() functions
+
 INSERT INTO department (name)
 VALUES ("Sales");
 INSERT INTO department (name)

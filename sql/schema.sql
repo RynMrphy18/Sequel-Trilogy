@@ -1,12 +1,12 @@
 DROP DATABASE IF EXISTS employeesDB;
-
 CREATE DATABASE employeesDB;
-
 USE employeesDB;
+
+-- schema for view/add__ functions()
 
 CREATE TABLE department (
     id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(50) NULL,
+    name VARCHAR(30) NULL,
     PRIMARY KEY (id)
 );
 
